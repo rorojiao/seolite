@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEOLite 🔍 — Free Lightweight SEO Tools</title>
+  <meta name="description" content="Free, lightweight SEO tools for webmasters and marketers. Check meta tags, analyze heading structure, generate robots.txt — all in your browser.">
+  <meta property="og:title" content="SEOLite — Free Lightweight SEO Tools">
+  <meta property="og:description" content="Analyze your site's SEO health instantly. No signup, no server — runs 100% in your browser.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <div class="logo">SEOLite <span>🔍</span></div>
+    <ul>
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="meta-checker.html">Meta</a></li>
+      <li><a href="heading.html">Headings</a></li>
+      <li><a href="robots.html">Robots</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <h1>Lightweight <em>SEO</em> Tools</h1>
+    <p>Instant SEO analysis right in your browser. No signup, no server calls, 100% free &amp; open source.</p>
+  </section>
+
+  <section class="cards">
+    <div class="card">
+      <div class="icon">🏷️</div>
+      <h3>Meta Tag Checker</h3>
+      <p>Analyze title, description, Open Graph tags, viewport and more. Get a score with actionable tips.</p>
+      <a href="meta-checker.html" class="btn">Check Meta →</a>
+    </div>
+    <div class="card">
+      <div class="icon">📑</div>
+      <h3>Heading Analyzer</h3>
+      <p>Visualize your H1–H6 hierarchy. Spot missing H1s, duplicates, and level-skipping issues.</p>
+      <a href="heading.html" class="btn">Analyze →</a>
+    </div>
+    <div class="card">
+      <div class="icon">🤖</div>
+      <h3>Robots.txt Generator</h3>
+      <p>Build a valid robots.txt with Allow/Disallow rules and sitemap references in seconds.</p>
+      <a href="robots.html" class="btn">Generate →</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>SEOLite — Open-source SEO toolkit. No data leaves your browser.</p>
+    <a class="tip-btn" onclick="document.getElementById('tipModal').classList.add('show')">☕ Buy me a coffee</a>
+  </footer>
+
+  <div class="tip-modal" id="tipModal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal-body">
+      <p><strong>Thanks for your support! 💚</strong></p>
+      <p style="font-size:.9rem;color:var(--text-light)">Send ETH / ERC-20 tokens to:</p>
+      <code>0xEeD903787Cb86bcCc17777E5C7d10A4c2De43823</code>
+      <button class="close-btn" onclick="document.getElementById('tipModal').classList.remove('show')">Close</button>
+    </div>
+  </div>
+</body>
+</html>

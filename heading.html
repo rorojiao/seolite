@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heading Structure Analyzer — SEOLite</title>
+  <meta name="description" content="Visualize your page's H1-H6 heading hierarchy and catch SEO issues like missing H1 or skipped levels.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <div class="logo">SEOLite <span>🔍</span></div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="meta-checker.html">Meta</a></li>
+      <li><a href="heading.html" class="active">Headings</a></li>
+      <li><a href="robots.html">Robots</a></li>
+    </ul>
+  </nav>
+
+  <div class="tool-container">
+    <h1>📑 Heading Structure Analyzer</h1>
+    <p class="subtitle">Paste HTML source to visualize the heading hierarchy and detect issues.</p>
+
+    <textarea id="htmlInput" placeholder="Paste your HTML source code here..."></textarea>
+    <button class="primary" onclick="analyzeHeadings()">🔍 Analyze Headings</button>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <footer>
+    <p>SEOLite — Open-source SEO toolkit</p>
+    <a class="tip-btn" onclick="document.getElementById('tipModal').classList.add('show')">☕ Buy me a coffee</a>
+  </footer>
+  <div class="tip-modal" id="tipModal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal-body">
+      <p><strong>Thanks for your support! 💚</strong></p>
+      <code>0xEeD903787Cb86bcCc17777E5C7d10A4c2De43823</code>
+      <button class="close-btn" onclick="document.getElementById('tipModal').classList.remove('show')">Close</button>
+    </div>
+  </div>
+
+<script>
+function analyzeHeadings() {
+  const html = document.getElementById('htmlInput').value.trim();
+  if (!html) return;
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const headings = doc.querySelectorAll('h1,h2,h3,h4,h5,h6');
+  const issues = [];
+  const items = [];
+
+  // Collect headings
+  headings.forEach(h => {
+    const level = parseInt(h.tagName[1]);
+    items.push({ level, text: h.textContent.trim() || '(empty)', tag: h.tagName });
+  });
+
+  if (items.length === 0) {
+    document.getElementById('results').innerHTML = `
+      <div class="result-header"><div><strong>Results</strong></div><div class="score">⚠️</div></div>
+      <div class="result-body"><p>No headings found in the HTML.</p></div>`;
+    return;
+  }
+
+  // Check: H1 count
+  const h1Count = items.filter(i => i.level === 1).length;
+  if (h1Count === 0) issues.push({ type: 'danger', msg: 'No H1 found — every page should have exactly one H1.' });
+  else if (h1Count > 1) issues.push({ type: 'warning', msg: `Found ${h1Count} H1 tags — use only one H1 per page.` });
+
+  // Check: first heading should be H1
+  if (items[0].level !== 1) issues.push({ type: 'warning', msg: `First heading is ${items[0].tag}, not H1.` });
+
+  // Check: level skipping
+  for (let i = 1; i < items.length; i++) {
+    if (items[i].level > items[i-1].level + 1) {
+      issues.push({ type: 'warning', msg: `Level skip: ${items[i-1].tag} → ${items[i].tag} (skipped ${items[i].level - items[i-1].level - 1} level${items[i].level - items[i-1].level - 1 > 1 ? 's' : ''})` });
+    }
+  }
+
+  // Check: empty headings
+  items.filter(i => i.text === '(empty)').forEach(i => {
+    issues.push({ type: 'danger', msg: `Empty ${i.tag} tag found.` });
+  });
+
+  const issueColor = { danger: '❌', warning: '⚠️' };
+  const noIssues = issues.length === 0;
+
+  document.getElementById('results').innerHTML = `
+    <div class="result-header">
+      <div><strong>Heading Structure</strong> — ${items.length} heading${items.length > 1 ? 's' : ''}</div>
+      <div class="score">${noIssues ? '✅ Clean' : issues.length + ' issue' + (issues.length > 1 ? 's' : '')}</div>
+    </div>
+    <div class="result-body">
+      ${issues.length ? `<div style="margin-bottom:1rem">${issues.map(i => `
+        <div class="check-item">
+          <div class="status">${issueColor[i.type]}</div>
+          <div class="info"><p>${i.msg}</p></div>
+        </div>`).join('')}</div>` : ''}
+      <div class="heading-tree">
+        ${items.map(i => `
+          <div class="heading-node" style="padding-left:${(i.level - 1) * 1.5}rem">
+            <span class="tag h${i.level}-tag">${i.tag}</span>
+            <span>${escHtml(i.text.substring(0, 80))}${i.text.length > 80 ? '…' : ''}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>

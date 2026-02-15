@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robots.txt Generator — SEOLite</title>
+  <meta name="description" content="Generate a valid robots.txt file with custom Allow/Disallow rules and sitemap URLs.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <div class="logo">SEOLite <span>🔍</span></div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="meta-checker.html">Meta</a></li>
+      <li><a href="heading.html">Headings</a></li>
+      <li><a href="robots.html" class="active">Robots</a></li>
+    </ul>
+  </nav>
+
+  <div class="tool-container">
+    <h1>🤖 Robots.txt Generator</h1>
+    <p class="subtitle">Configure rules and generate a valid robots.txt file.</p>
+
+    <div class="builder-section">
+      <h3>User-Agent</h3>
+      <input type="text" id="userAgent" value="*" style="width:100%;padding:.5rem .75rem;border:1px solid var(--border);border-radius:8px;font-size:.9rem" placeholder="* (all bots)">
+    </div>
+
+    <div class="builder-section">
+      <h3>Rules</h3>
+      <div id="rules">
+        <div class="rule-row">
+          <select><option value="Disallow">Disallow</option><option value="Allow">Allow</option></select>
+          <input type="text" value="/admin/" placeholder="/path/">
+          <button onclick="this.parentElement.remove()">✕</button>
+        </div>
+        <div class="rule-row">
+          <select><option value="Disallow">Disallow</option><option value="Allow">Allow</option></select>
+          <input type="text" value="/private/" placeholder="/path/">
+          <button onclick="this.parentElement.remove()">✕</button>
+        </div>
+      </div>
+      <button class="secondary" onclick="addRule()">+ Add Rule</button>
+    </div>
+
+    <div class="builder-section">
+      <h3>Sitemap URLs</h3>
+      <div id="sitemaps">
+        <div class="rule-row">
+          <input type="text" value="https://example.com/sitemap.xml" placeholder="https://example.com/sitemap.xml">
+          <button onclick="this.parentElement.remove()">✕</button>
+        </div>
+      </div>
+      <button class="secondary" onclick="addSitemap()">+ Add Sitemap</button>
+    </div>
+
+    <button class="primary" onclick="generate()">⚡ Generate robots.txt</button>
+
+    <div id="output"></div>
+  </div>
+
+  <footer>
+    <p>SEOLite — Open-source SEO toolkit</p>
+    <a class="tip-btn" onclick="document.getElementById('tipModal').classList.add('show')">☕ Buy me a coffee</a>
+  </footer>
+  <div class="tip-modal" id="tipModal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal-body">
+      <p><strong>Thanks for your support! 💚</strong></p>
+      <code>0xEeD903787Cb86bcCc17777E5C7d10A4c2De43823</code>
+      <button class="close-btn" onclick="document.getElementById('tipModal').classList.remove('show')">Close</button>
+    </div>
+  </div>
+
+<script>
+function addRule() {
+  const div = document.createElement('div');
+  div.className = 'rule-row';
+  div.innerHTML = `<select><option value="Disallow">Disallow</option><option value="Allow">Allow</option></select>
+    <input type="text" placeholder="/path/">
+    <button onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('rules').appendChild(div);
+}
+
+function addSitemap() {
+  const div = document.createElement('div');
+  div.className = 'rule-row';
+  div.innerHTML = `<input type="text" placeholder="https://example.com/sitemap.xml">
+    <button onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('sitemaps').appendChild(div);
+}
+
+function generate() {
+  const ua = document.getElementById('userAgent').value.trim() || '*';
+  let txt = `User-agent: ${ua}\n`;
+
+  document.querySelectorAll('#rules .rule-row').forEach(row => {
+    const directive = row.querySelector('select').value;
+    const path = row.querySelector('input').value.trim();
+    if (path) txt += `${directive}: ${path}\n`;
+  });
+
+  txt += '\n';
+
+  document.querySelectorAll('#sitemaps .rule-row').forEach(row => {
+    const url = row.querySelector('input').value.trim();
+    if (url) txt += `Sitemap: ${url}\n`;
+  });
+
+  document.getElementById('output').innerHTML = `
+    <div class="output-box"><button class="copy-btn" onclick="copyTxt(this)">📋 Copy</button>${escHtml(txt.trim())}</div>`;
+}
+
+function copyTxt(btn) {
+  const text = btn.parentElement.textContent.replace('📋 Copy', '').trim();
+  navigator.clipboard.writeText(text);
+  btn.textContent = '✅ Copied!';
+  setTimeout(() => btn.textContent = '📋 Copy', 1500);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>

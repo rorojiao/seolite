@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meta Tag Checker — SEOLite</title>
+  <meta name="description" content="Paste your HTML source to analyze meta tags, Open Graph, title length, and get an SEO score.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <div class="logo">SEOLite <span>🔍</span></div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="meta-checker.html" class="active">Meta</a></li>
+      <li><a href="heading.html">Headings</a></li>
+      <li><a href="robots.html">Robots</a></li>
+    </ul>
+  </nav>
+
+  <div class="tool-container">
+    <h1>🏷️ Meta Tag Checker</h1>
+    <p class="subtitle">Paste your page's HTML source code below to analyze its meta tags.</p>
+
+    <textarea id="htmlInput" placeholder="<!DOCTYPE html>\n<html>\n<head>\n  <title>Your Page Title</title>\n  <meta name=&quot;description&quot; content=&quot;...&quot;>\n  ...\n</head>\n<body>...</body>\n</html>"></textarea>
+    <button class="primary" onclick="analyze()">🔍 Analyze Meta Tags</button>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <footer>
+    <p>SEOLite — Open-source SEO toolkit</p>
+    <a class="tip-btn" onclick="document.getElementById('tipModal').classList.add('show')">☕ Buy me a coffee</a>
+  </footer>
+  <div class="tip-modal" id="tipModal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal-body">
+      <p><strong>Thanks for your support! 💚</strong></p>
+      <code>0xEeD903787Cb86bcCc17777E5C7d10A4c2De43823</code>
+      <button class="close-btn" onclick="document.getElementById('tipModal').classList.remove('show')">Close</button>
+    </div>
+  </div>
+
+<script>
+function analyze() {
+  const html = document.getElementById('htmlInput').value.trim();
+  if (!html) return;
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const checks = [];
+  let score = 0, total = 0;
+
+  function check(name, pass, good, bad) {
+    total += 10;
+    if (pass) score += 10;
+    checks.push({ name, pass, msg: pass ? good : bad });
+  }
+
+  // Title
+  const title = doc.querySelector('title');
+  const titleText = title ? title.textContent.trim() : '';
+  const titleLen = titleText.length;
+  check('Title Tag', !!titleText, `Found: "${titleText}" (${titleLen} chars)`,
+    'Missing <title> tag!');
+  if (titleText) {
+    check('Title Length', titleLen >= 30 && titleLen <= 60,
+      `Good length: ${titleLen} characters`,
+      `${titleLen} chars — aim for 30–60 characters`);
+  }
+
+  // Description
+  const desc = doc.querySelector('meta[name="description"]');
+  const descText = desc ? desc.getAttribute('content')?.trim() : '';
+  const descLen = descText ? descText.length : 0;
+  check('Meta Description', !!descText, `Found (${descLen} chars)`, 'Missing meta description!');
+  if (descText) {
+    check('Description Length', descLen >= 120 && descLen <= 160,
+      `Good length: ${descLen} characters`,
+      `${descLen} chars — aim for 120–160 characters`);
+  }
+
+  // Keywords
+  const kw = doc.querySelector('meta[name="keywords"]');
+  check('Meta Keywords', !!kw?.getAttribute('content'),
+    `Found: "${kw?.getAttribute('content')?.substring(0,60)}..."`,
+    'No meta keywords (low priority, but still good to have)');
+
+  // Viewport
+  const vp = doc.querySelector('meta[name="viewport"]');
+  check('Viewport', !!vp, 'Viewport meta tag present', 'Missing viewport — site may not be mobile-friendly');
+
+  // Charset
+  const charset = doc.querySelector('meta[charset]') || doc.querySelector('meta[http-equiv="Content-Type"]');
+  check('Charset', !!charset, 'Character encoding declared', 'No charset declaration found');
+
+  // OG Title
+  const ogTitle = doc.querySelector('meta[property="og:title"]');
+  check('OG Title', !!ogTitle?.getAttribute('content'), 'Open Graph title present',
+    'Missing og:title — social shares won\'t look great');
+
+  // OG Description
+  const ogDesc = doc.querySelector('meta[property="og:description"]');
+  check('OG Description', !!ogDesc?.getAttribute('content'), 'Open Graph description present',
+    'Missing og:description');
+
+  // OG Image
+  const ogImg = doc.querySelector('meta[property="og:image"]');
+  check('OG Image', !!ogImg?.getAttribute('content'), 'Open Graph image present',
+    'Missing og:image — social previews will lack an image');
+
+  // Canonical
+  const canonical = doc.querySelector('link[rel="canonical"]');
+  check('Canonical URL', !!canonical?.getAttribute('href'), `Canonical: ${canonical?.getAttribute('href')}`,
+    'No canonical URL — may cause duplicate content issues');
+
+  // Lang
+  const lang = doc.documentElement.getAttribute('lang');
+  check('HTML lang', !!lang, `Language: ${lang}`, 'Missing lang attribute on <html>');
+
+  const pct = Math.round((score / total) * 100);
+  let grade = pct >= 90 ? 'A' : pct >= 70 ? 'B' : pct >= 50 ? 'C' : 'D';
+
+  document.getElementById('results').innerHTML = `
+    <div class="result-header">
+      <div><strong>SEO Score</strong></div>
+      <div class="score">${pct}% (${grade})</div>
+    </div>
+    <div class="result-body">
+      ${checks.map(c => `
+        <div class="check-item">
+          <div class="status">${c.pass ? '✅' : '❌'}</div>
+          <div class="info"><h4>${c.name}</h4><p>${c.msg}</p></div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
